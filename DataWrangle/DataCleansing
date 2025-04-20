@@ -12,9 +12,55 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 from sklearn.linear_model import LinearRegression
 
+===============================================================================================================================================================
+Data Loading and Wrangling: 
+Files containing real estate data for Mexico City are loaded using glob, wrangled with the wrangle function, and then combined into a single DataFrame.
+===============================================================================================================================================================
 
 
-files= glob("data/mexico-city-real-estate*.csv")
+files= glob("data/mexico-city-real-estate*.xlsx")
 frames =[wrangle(file) for file in files]
 df = pd.concat(frames, ignore_index=True)
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+Data Visualization:
+
+* A histogram for visualizing the distribution of apartment prices.
+* A scatter plot for examining the relationship between apartment size and price.
+* An interactive map to display the geographical locations of apartments, color-coded by price.
+
+
+
+----------------# Build histogram
+plt.hist(df["price_aprox_usd"])
+plt.xlabel("Price [$]")
+plt.ylabel("Count")
+plt.title("Distribution of Apartment Prices")
+
+
+----------------# Build scatter plot
+plt.scatter(x=df["surface_covered_in_m2"],y=df["price_aprox_usd"])
+plt.xlabel("Area [sq meters]")
+plt.ylabel("Price [USD]")
+plt.title("Mexico City: Price vs. Area");
+
+
+
+----------------# Plot Mapbox location and price
+fig = px.scatter_mapbox(
+    df,
+    lat="lat",
+    lon="lon",
+    center={"lat": 19.42, "lon": -99.1},  # Map will be centered on Brazil
+    width=600,
+    height=600,
+    hover_data=["price_aprox_usd"],  # Display price when hovering mouse over house
+    color= "price_aprox_usd"
+)
+
+fig.update_layout(mapbox_style="open-street-map")
+
+=================================================================================================================================================================
+
+
 
