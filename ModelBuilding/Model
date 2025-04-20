@@ -1,0 +1,50 @@
+===============================================================================================================================================================
+Summary of the Steps:
+  * Data Preparation: Split the dataset into features (X_train) and target (y_train).
+
+  * Baseline Model: Calculate the mean price of apartments and compute the Mean Absolute Error (MAE) of predicting the mean price for all apartments.
+
+  * Build the Model: Use a pipeline to preprocess the data (one-hot encoding, imputation) and apply Ridge regression for modeling.
+
+  * Model Training: Fit the model to the training data.
+
+  * Test Data: Load the test data and prepare it for prediction.
+
+  * Make Predictions: Use the trained model to predict apartment prices on the test data and inspect the predictions.
+===============================================================================================================================================================
+
+--------------# Split data into feature matrix `X_train` and target vector `y_train`.
+features = ["surface_covered_in_m2", "lat","lon","borough"]
+target = "price_aprox_usd"
+X_train = df[features]
+y_train = df[target]
+
+
+
+y_mean = y_train.mean()
+y_pred_baseline = [y_mean]*len(y_train)
+baseline_mae = mean_absolute_error(y_train,y_pred_baseline)
+print("Mean apt price:", y_mean)
+print("Baseline MAE:", baseline_mae)
+
+
+
+
+--------------# Build Model
+model =  make_pipeline(
+    
+    OneHotEncoder(use_cat_names=True),
+    SimpleImputer(),
+    Ridge(),
+)
+--------------# Fit model
+model.fit(X_train,y_train)
+
+
+X_test = pd.read_csv("Data/mexico-city-test-features.csv")[features]
+print(X_test.info())
+X_test.head()
+
+
+y_test_pred = pd.Series(model.predict(X_test))
+y_test_pred.head()
