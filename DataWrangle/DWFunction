@@ -1,0 +1,41 @@
+def wrangle (filepath):
+    df=pd.read_excel(filepath)
+    
+    #subset for city 
+    mask_place = df["place_with_parent_names"].str.contains("Distrito Federal")
+    
+
+    
+    #subset for city 
+    mask_type = df["property_type"]=="apartment"
+     
+    #subset for city 
+    mask_price =df["price_aprox_usd"]<100_000 
+    df = df[mask_place & mask_price & mask_type]
+    
+      
+    #remove outliers
+    low, high = df["surface_covered_in_m2"].quantile([0.1, 0.9])
+    mask_area = df["surface_covered_in_m2"].between(low, high)
+    df=df[mask_area]
+   
+    #separete lat-lon
+    df[["lat", "lon"]] = df["lat-lon"].str.split(",", expand=True).astype(float)
+    df.drop(columns="lat-lon",inplace=True)
+    
+    #Create borough
+    df["borough"] = df["place_with_parent_names"].str.split("|",expand=True)[1]
+    df.drop(columns=["place_with_parent_names"],inplace=True)
+
+    #Drop columns tha have more than 50% null
+    df.drop(columns=["surface_total_in_m2","price_usd_per_m2","floor","rooms","expenses"],inplace=True)
+
+    #Drop columns tha have low-high cardinality
+    df.drop(columns=["operation","currency","properati_url","property_type"],inplace=True)
+    
+    #Drop columns tha have leakage
+    df.drop(columns=["price_aprox_local_currency","price","price_per_m2"],inplace=True)
+
+    #Drop columns that would create issues of multicollinearity
+
+    return df
